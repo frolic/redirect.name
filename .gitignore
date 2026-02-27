@@ -1,8 +1,16 @@
 .DS_Store
 
+# Terraform — state files contain infra metadata, never commit to public repo
+terraform/.terraform/
+terraform/terraform.tfstate
+terraform/terraform.tfstate.backup
+terraform/*.tfvars
+# .terraform.lock.hcl is intentionally committed (provider version lock)
+
 # ignore docs repo
 docs/
 
 # ignore build artifacts
+redirect-name
 redirect.name
 server
