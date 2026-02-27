@@ -69,7 +69,7 @@ func redirectHandler(w http.ResponseWriter, r *http.Request) {
 	host := parts[0]
 
 	hostname := fmt.Sprintf("_redirect.%s", host)
-	txt, err := net.LookupTXT(hostname)
+	txt, err := lookupTXT(hostname)
 	if err != nil {
 		fallback(w, r, fmt.Sprintf("Could not resolve hostname (%v)", err))
 		return
@@ -79,6 +79,9 @@ func redirectHandler(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		fallback(w, r, err.Error())
 	} else {
+		if redirect.Status == http.StatusMovedPermanently {
+			w.Header().Set("Cache-Control", "max-age=3600")
+		}
 		http.Redirect(w, r, redirect.Location, redirect.Status)
 	}
 }

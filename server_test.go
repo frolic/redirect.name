@@ -3,6 +3,8 @@ package main
 import (
 	"context"
 	"errors"
+	"net/http"
+	"net/http/httptest"
 	"testing"
 )
 
@@ -53,6 +55,45 @@ func TestGetRedirectComplex(t *testing.T) {
 	redirect, err = getRedirect(dnsTXT, "/catch/all")
 	assertEqual(t, err, nil)
 	assertEqual(t, redirect.Location, "https://github.com/holic")
+}
+
+func TestRedirectHandler301CacheControl(t *testing.T) {
+	orig := lookupTXT
+	defer func() { lookupTXT = orig }()
+	lookupTXT = func(host string) ([]string, error) {
+		return []string{"Redirects permanently to https://example.com/"}, nil
+	}
+
+	req := httptest.NewRequest("GET", "http://go.example.com/", nil)
+	rr := httptest.NewRecorder()
+	redirectHandler(rr, req)
+
+	if rr.Code != http.StatusMovedPermanently {
+		t.Errorf("expected 301, got %d", rr.Code)
+	}
+	cc := rr.Header().Get("Cache-Control")
+	if cc == "" {
+		t.Error("expected Cache-Control header on 301, got none")
+	}
+}
+
+func TestRedirectHandler302NoCacheControl(t *testing.T) {
+	orig := lookupTXT
+	defer func() { lookupTXT = orig }()
+	lookupTXT = func(host string) ([]string, error) {
+		return []string{"Redirects to https://example.com/"}, nil
+	}
+
+	req := httptest.NewRequest("GET", "http://go.example.com/", nil)
+	rr := httptest.NewRecorder()
+	redirectHandler(rr, req)
+
+	if rr.Code != http.StatusFound {
+		t.Errorf("expected 302, got %d", rr.Code)
+	}
+	if cc := rr.Header().Get("Cache-Control"); cc != "" {
+		t.Errorf("expected no Cache-Control on 302, got %q", cc)
+	}
 }
 
 func TestHostPolicy(t *testing.T) {
