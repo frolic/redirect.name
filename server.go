@@ -80,7 +80,7 @@ func redirectHandler(w http.ResponseWriter, r *http.Request) {
 		fallback(w, r, err.Error())
 	} else {
 		if redirect.Status == http.StatusMovedPermanently {
-			w.Header().Set("Cache-Control", "max-age=3600")
+			w.Header().Set("Cache-Control", "max-age=86400")
 		}
 		http.Redirect(w, r, redirect.Location, redirect.Status)
 	}
