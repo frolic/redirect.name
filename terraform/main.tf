@@ -94,10 +94,13 @@ resource "digitalocean_firewall" "redirect" {
   }
 }
 
-# Phase 3 cutover: uncomment once HTTP is validated on the ephemeral IP.
-# This reassigns the reserved IP from the old droplet to the new one (~5s outage).
-#
-# resource "digitalocean_reserved_ip_assignment" "redirect" {
-#   ip_address = var.reserved_ip
-#   droplet_id = digitalocean_droplet.redirect.id
-# }
+# Reserved IP — stable address that survives droplet replacement.
+# Assign it immediately since there's no old droplet to protect.
+resource "digitalocean_reserved_ip" "redirect" {
+  region = var.region
+}
+
+resource "digitalocean_reserved_ip_assignment" "redirect" {
+  ip_address = digitalocean_reserved_ip.redirect.ip_address
+  droplet_id = digitalocean_droplet.redirect.id
+}

@@ -20,9 +20,3 @@ variable "ssh_key_fingerprint" {
   description = "Fingerprint of deploy SSH key — visible in DO control panel → Settings → Security"
   type        = string
 }
-
-variable "reserved_ip" {
-  description = "Existing reserved IP to reassign at Phase 3 cutover"
-  type        = string
-  default     = ""
-}
