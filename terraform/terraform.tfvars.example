@@ -1,0 +1,8 @@
+# Copy to terraform.tfvars and fill in values.
+# NEVER commit terraform.tfvars — it is gitignored.
+# Alternatively, set variables via environment: export TF_VAR_do_token=...
+
+# region              = "nyc1"
+# droplet_size        = "s-1vcpu-1gb"
+# ssh_key_fingerprint = "aa:bb:cc:dd:..."  # DO control panel → Settings → Security
+# reserved_ip         = "1.2.3.4"          # used only at Phase 3 cutover
