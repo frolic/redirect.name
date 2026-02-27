@@ -77,6 +77,25 @@ func TestRedirectHandler301CacheControl(t *testing.T) {
 	}
 }
 
+func TestRedirectHandler308CacheControl(t *testing.T) {
+	orig := lookupTXT
+	defer func() { lookupTXT = orig }()
+	lookupTXT = func(host string) ([]string, error) {
+		return []string{"Redirects to https://example.com/ with 308"}, nil
+	}
+
+	req := httptest.NewRequest("GET", "http://go.example.com/", nil)
+	rr := httptest.NewRecorder()
+	redirectHandler(rr, req)
+
+	if rr.Code != http.StatusPermanentRedirect {
+		t.Errorf("expected 308, got %d", rr.Code)
+	}
+	if cc := rr.Header().Get("Cache-Control"); cc == "" {
+		t.Error("expected Cache-Control header on 308, got none")
+	}
+}
+
 func TestRedirectHandler302NoCacheControl(t *testing.T) {
 	orig := lookupTXT
 	defer func() { lookupTXT = orig }()
@@ -93,6 +112,25 @@ func TestRedirectHandler302NoCacheControl(t *testing.T) {
 	}
 	if cc := rr.Header().Get("Cache-Control"); cc != "" {
 		t.Errorf("expected no Cache-Control on 302, got %q", cc)
+	}
+}
+
+func TestRedirectHandler307NoCacheControl(t *testing.T) {
+	orig := lookupTXT
+	defer func() { lookupTXT = orig }()
+	lookupTXT = func(host string) ([]string, error) {
+		return []string{"Redirects to https://example.com/ with 307"}, nil
+	}
+
+	req := httptest.NewRequest("GET", "http://go.example.com/", nil)
+	rr := httptest.NewRecorder()
+	redirectHandler(rr, req)
+
+	if rr.Code != http.StatusTemporaryRedirect {
+		t.Errorf("expected 307, got %d", rr.Code)
+	}
+	if cc := rr.Header().Get("Cache-Control"); cc != "" {
+		t.Errorf("expected no Cache-Control on 307, got %q", cc)
 	}
 }
 
