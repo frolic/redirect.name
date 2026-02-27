@@ -6,7 +6,7 @@ Wants=network-online.target
 [Service]
 Type=simple
 ExecStart=/usr/local/bin/redirect-name
-Environment=PORT=80
+Environment=CERT_DIR=/mnt/certs
 Restart=always
 RestartSec=5
 User=redirect
