@@ -9,8 +9,10 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/signal"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 
 	"golang.org/x/crypto/acme/autocert"
@@ -160,7 +162,18 @@ func main() {
 			WriteTimeout: 5 * time.Second,
 		}
 		log.Printf("Listening on http://0.0.0.0:%s", port)
-		log.Fatal(srv.ListenAndServe())
+		stop := make(chan os.Signal, 1)
+		signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
+		go func() {
+			<-stop
+			log.Println("Shutting down...")
+			ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+			defer cancel()
+			srv.Shutdown(ctx)
+		}()
+		if err := srv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatal(err)
+		}
 		return
 	}
 
@@ -177,7 +190,9 @@ func main() {
 		WriteTimeout: 5 * time.Second,
 	}
 	go func() {
-		log.Fatal(httpSrv.ListenAndServe())
+		if err := httpSrv.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatal(err)
+		}
 	}()
 
 	httpsSrv := &http.Server{
@@ -187,6 +202,23 @@ func main() {
 		ReadTimeout:  5 * time.Second,
 		WriteTimeout: 5 * time.Second,
 	}
+
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, syscall.SIGTERM, syscall.SIGINT)
+	go func() {
+		<-stop
+		log.Println("Shutting down...")
+		ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+		defer cancel()
+		var wg sync.WaitGroup
+		wg.Add(2)
+		go func() { defer wg.Done(); httpSrv.Shutdown(ctx) }()
+		go func() { defer wg.Done(); httpsSrv.Shutdown(ctx) }()
+		wg.Wait()
+	}()
+
 	log.Printf("Listening on :80 and :443")
-	log.Fatal(httpsSrv.ListenAndServeTLS("", ""))
+	if err := httpsSrv.ListenAndServeTLS("", ""); err != nil && err != http.ErrServerClosed {
+		log.Fatal(err)
+	}
 }

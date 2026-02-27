@@ -1,6 +1,3 @@
-# [redirect.name](http://redirect.name/) [![Build status][ci-image]][ci-url]
+# [redirect.name](https://redirect.name/) [![Deploy](https://github.com/frolic/redirect.name/actions/workflows/deploy.yml/badge.svg)](https://github.com/frolic/redirect.name/actions/workflows/deploy.yml)
 
-Please refer to [redirect.name](http://redirect.name/) for documentation.
-
-[ci-image]: https://img.shields.io/circleci/project/holic/redirect.name/master.svg?style=flat
-[ci-url]: https://circleci.com/gh/holic/redirect.name
+Please refer to [redirect.name](https://redirect.name/) for documentation.
