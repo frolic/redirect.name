@@ -1,0 +1,66 @@
+name: Deploy
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+      - run: go test ./...
+
+  deploy:
+    name: Deploy
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+
+      - name: Build
+        run: CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -o redirect-name .
+
+      - name: Set up SSH
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/deploy_key
+          chmod 600 ~/.ssh/deploy_key
+          ssh-keyscan -H "${{ secrets.DROPLET_IP }}" >> ~/.ssh/known_hosts
+
+      - name: Deploy
+        env:
+          DROPLET_IP: ${{ secrets.DROPLET_IP }}
+        run: |
+          scp -i ~/.ssh/deploy_key redirect-name root@$DROPLET_IP:/tmp/redirect-name
+          scp -i ~/.ssh/deploy_key redirect-name.service root@$DROPLET_IP:/etc/systemd/system/redirect-name.service
+          ssh -i ~/.ssh/deploy_key root@$DROPLET_IP "
+            install -m 755 /tmp/redirect-name /usr/local/bin/redirect-name &&
+            systemctl daemon-reload &&
+            systemctl enable redirect-name &&
+            systemctl restart redirect-name
+          "
+
+      - name: Smoke test
+        env:
+          DROPLET_IP: ${{ secrets.DROPLET_IP }}
+        run: |
+          sleep 3
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "Host: github.redirect.name" \
+            http://$DROPLET_IP/ --max-time 10)
+          if [ "$STATUS" = "301" ] || [ "$STATUS" = "302" ]; then
+            echo "✓ Smoke test passed (HTTP $STATUS)"
+          else
+            echo "✗ Smoke test failed (HTTP $STATUS)"
+            exit 1
+          fi
