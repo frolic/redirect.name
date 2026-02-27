@@ -7,9 +7,6 @@ terraform/terraform.tfstate.backup
 terraform/*.tfvars
 # .terraform.lock.hcl is intentionally committed (provider version lock)
 
-# ignore docs repo
-docs/
-
 # ignore build artifacts
 redirect-name
 redirect.name

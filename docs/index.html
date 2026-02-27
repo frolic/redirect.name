@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>redirect.name — DNS-based redirects</title>
+  <style>
+    :root {
+      --font: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
+      --mono: ui-monospace, "Cascadia Code", Menlo, monospace;
+      --max-width: 680px;
+      --accent: #2563eb;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; }
+
+    body {
+      font-family: var(--font);
+      background: #fff;
+      color: #111;
+      margin: 0;
+      padding: 2rem 1rem 4rem;
+      line-height: 1.6;
+      font-size: 1rem;
+    }
+
+    .container {
+      max-width: var(--max-width);
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin: 0 0 0.25rem;
+      letter-spacing: -0.02em;
+    }
+
+    h2 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin: 2.5rem 0 0.75rem;
+      letter-spacing: -0.01em;
+    }
+
+    p { margin: 0 0 1rem; }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+    a:hover { text-decoration: underline; }
+
+    code, pre {
+      font-family: var(--mono);
+      font-size: 0.875em;
+    }
+
+    code {
+      background: #f6f8fa;
+      border: 1px solid #e1e4e8;
+      border-radius: 4px;
+      padding: 0.1em 0.35em;
+    }
+
+    pre {
+      background: #f6f8fa;
+      border: 1px solid #e1e4e8;
+      border-radius: 6px;
+      padding: 1rem 1.25rem;
+      overflow-x: auto;
+      margin: 0 0 1rem;
+      line-height: 1.5;
+    }
+
+    pre code {
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: 0.875rem;
+    }
+
+    ol, ul {
+      padding-left: 1.5rem;
+      margin: 0 0 1rem;
+    }
+
+    li { margin-bottom: 0.4rem; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.9rem;
+      margin: 0 0 1rem;
+    }
+
+    th {
+      text-align: left;
+      font-weight: 600;
+      border-bottom: 2px solid #e1e4e8;
+      padding: 0.5rem 0.75rem;
+    }
+
+    td {
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid #f0f0f0;
+      vertical-align: top;
+    }
+
+    tr:last-child td { border-bottom: none; }
+
+    .tagline {
+      color: #555;
+      margin: 0 0 2rem;
+      font-size: 1.05rem;
+    }
+
+    .alert {
+      background: #fff1f0;
+      border: 1px solid #ffa39e;
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      margin: 0 0 1.5rem;
+      font-size: 0.95rem;
+      display: none;
+    }
+
+    .alert.visible { display: block; }
+
+    hr {
+      border: none;
+      border-top: 1px solid #e1e4e8;
+      margin: 2.5rem 0;
+    }
+
+    .step-num {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      width: 1.5rem;
+      height: 1.5rem;
+      border-radius: 50%;
+      text-align: center;
+      line-height: 1.5rem;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-right: 0.5rem;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body>
+<div class="container">
+
+  <div id="error-alert" class="alert"></div>
+
+  <h1>redirect.name</h1>
+  <p class="tagline">DNS-based URL redirects — no server, no signup, no dashboard.</p>
+
+  <h2>How it works</h2>
+  <p>
+    Point a hostname at <code>alias.redirect.name</code> (or the IP), then add a TXT record
+    with your redirect rule. That's it. The service reads your DNS and redirects visitors.
+  </p>
+
+  <hr>
+
+  <h2>Setup</h2>
+  <ol>
+    <li>
+      Add a DNS record pointing your hostname to <code>redirect.name</code>:
+      <pre><code># Preferred: CNAME or ALIAS record
+CNAME  yoursubdomain.example.com  alias.redirect.name
+
+# Fallback: A record (use if your DNS provider doesn't support CNAME at apex)
+A      yoursubdomain.example.com  45.55.126.223</code></pre>
+    </li>
+    <li>
+      Add a TXT record on the same hostname with your redirect rule:
+      <pre><code>TXT  yoursubdomain.example.com  "Redirects to https://example.com/"</code></pre>
+    </li>
+    <li>Wait for DNS to propagate (usually a few minutes), then visit your hostname.</li>
+  </ol>
+
+  <hr>
+
+  <h2>Redirect rules</h2>
+  <p>The TXT record value is your redirect rule. All matching is case-insensitive.</p>
+
+  <table>
+    <thead>
+      <tr>
+        <th>TXT record value</th>
+        <th>Behavior</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td><code>Redirects to &lt;url&gt;</code></td>
+        <td>302 redirect to URL</td>
+      </tr>
+      <tr>
+        <td><code>Redirects permanently to &lt;url&gt;</code></td>
+        <td>301 redirect to URL</td>
+      </tr>
+      <tr>
+        <td><code>Redirects temporarily to &lt;url&gt;</code></td>
+        <td>302 redirect to URL (explicit)</td>
+      </tr>
+      <tr>
+        <td><code>Redirects from &lt;path&gt; to &lt;url&gt;</code></td>
+        <td>302 redirect when path matches</td>
+      </tr>
+      <tr>
+        <td><code>Redirects from &lt;path&gt; to &lt;url&gt; with 301</code></td>
+        <td>Redirect with specified status code (301, 302, 307, or 308)</td>
+      </tr>
+      <tr>
+        <td><code>Redirects from /path/* to https://example.com/*</code></td>
+        <td>Wildcard: <code>*</code> in destination is replaced with the matched portion</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <p>
+    You can add multiple TXT records to the same hostname. Specific path matches take
+    priority over catch-all rules. Rules are evaluated in order; the first match wins.
+  </p>
+
+  <hr>
+
+  <h2>Examples</h2>
+
+  <p><strong>Simple redirect</strong> — send all traffic to a new URL:</p>
+  <pre><code>TXT  go.example.com  "Redirects to https://www.example.com/"</code></pre>
+
+  <p><strong>Permanent redirect</strong> — tell browsers and search engines this is final:</p>
+  <pre><code>TXT  old.example.com  "Redirects permanently to https://new.example.com/"</code></pre>
+
+  <p><strong>Path-based routing</strong> — redirect a specific path, let others fall through:</p>
+  <pre><code>TXT  docs.example.com  "Redirects from /api to https://api-docs.example.com/"
+TXT  docs.example.com  "Redirects to https://docs.example.com/"</code></pre>
+
+  <p><strong>Wildcard forwarding</strong> — preserve the path suffix:</p>
+  <pre><code>TXT  links.example.com  "Redirects from /blog/* to https://blog.example.com/posts/*"</code></pre>
+
+  <hr>
+
+  <h2>HTTPS</h2>
+  <p>
+    TLS certificates are provisioned automatically via Let's Encrypt on the first
+    request to a new hostname. The very first HTTPS request may be slow (a few seconds)
+    while the certificate is issued. Subsequent requests are fast.
+  </p>
+
+  <hr>
+
+  <h2>Source</h2>
+  <p>
+    The server is open source:
+    <a href="https://github.com/frolic/redirect.name">github.com/frolic/redirect.name</a>
+  </p>
+
+</div>
+
+<script>
+  (function() {
+    var hash = location.hash;
+    if (!hash) return;
+    var match = hash.match(/[#&]reason=([^&]*)/);
+    if (!match) return;
+    var reason = decodeURIComponent(match[1].replace(/\+/g, ' '));
+    var escaped = reason.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    var el = document.getElementById('error-alert');
+    el.innerHTML = '<strong>Error:</strong> ' + escaped;
+    el.classList.add('visible');
+  })();
+</script>
+</body>
+</html>
