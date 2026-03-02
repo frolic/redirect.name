@@ -68,6 +68,11 @@ func redirectHandler(w http.ResponseWriter, r *http.Request) {
 	parts := strings.Split(r.Host, ":")
 	host := parts[0]
 
+	if isBlocked(host) {
+		http.Error(w, "Forbidden", http.StatusForbidden)
+		return
+	}
+
 	hostname := fmt.Sprintf("_redirect.%s", host)
 	txt, err := lookupTXT(hostname)
 	if err != nil {
@@ -89,6 +94,10 @@ func redirectHandler(w http.ResponseWriter, r *http.Request) {
 // hostPolicy validates that a host has a _redirect TXT record before
 // autocert will issue a certificate for it.
 func hostPolicy(ctx context.Context, host string) error {
+	if isBlocked(host) {
+		return fmt.Errorf("domain is blocked: %s", host)
+	}
+
 	hostname := fmt.Sprintf("_redirect.%s", host)
 	txt, err := lookupTXT(hostname)
 	if err != nil {
@@ -148,6 +157,8 @@ func (c *rateLimitedCache) Put(ctx context.Context, key string, data []byte) err
 }
 
 func main() {
+	blocklist = parseBlocklist(os.Getenv("BLOCKLIST"))
+
 	mux := http.NewServeMux()
 	mux.HandleFunc("/healthz", healthzHandler)
 	mux.HandleFunc("/", redirectHandler)

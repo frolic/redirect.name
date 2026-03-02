@@ -13,3 +13,4 @@ redirect.name
 server
 
 *.env*
+blocklist.txt

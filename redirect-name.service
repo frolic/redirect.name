@@ -7,6 +7,7 @@ Wants=network-online.target
 Type=simple
 ExecStart=/usr/local/bin/redirect-name
 Environment=CERT_DIR=/mnt/certs
+EnvironmentFile=-/usr/local/etc/redirect-name/blocklist.env
 Restart=always
 RestartSec=5
 User=redirect
