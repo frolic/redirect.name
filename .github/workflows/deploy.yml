@@ -40,7 +40,7 @@ jobs:
           ssh-keyscan -H "${{ secrets.DROPLET_IP }}" >> ~/.ssh/known_hosts
 
       - name: Write blocklist
-        run: printf 'BLOCKLIST=%s\n' "$BLOCKLIST" > blocklist.env
+        run: printf 'BLOCKLIST=%s\n' "$(echo "$BLOCKLIST" | tr '\n' ',' | sed 's/,$//')" > blocklist.env
         env:
           BLOCKLIST: ${{ secrets.BLOCKLIST }}
 
