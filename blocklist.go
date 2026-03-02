@@ -10,10 +10,12 @@ var blocklist map[string]bool
 
 func parseBlocklist(s string) map[string]bool {
 	m := make(map[string]bool)
-	for _, entry := range strings.Split(s, ",") {
-		entry = strings.TrimSpace(strings.ToLower(entry))
-		if entry != "" {
-			m[entry] = true
+	for _, line := range strings.Split(s, "\n") {
+		for _, entry := range strings.Split(line, ",") {
+			entry = strings.TrimSpace(strings.ToLower(entry))
+			if entry != "" {
+				m[entry] = true
+			}
 		}
 	}
 	return m

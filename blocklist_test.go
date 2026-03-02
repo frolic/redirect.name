@@ -19,6 +19,8 @@ func TestParseBlocklist(t *testing.T) {
 		{"whitespace and casing", " Evil.COM , Bad.ORG ", map[string]bool{"evil.com": true, "bad.org": true}},
 		{"trailing comma", "evil.com,", map[string]bool{"evil.com": true}},
 		{"empty entries", "evil.com,,bad.org", map[string]bool{"evil.com": true, "bad.org": true}},
+		{"newline separated", "evil.com\nbad.org\n", map[string]bool{"evil.com": true, "bad.org": true}},
+		{"mixed delimiters", "evil.com,bad.org\nworse.net", map[string]bool{"evil.com": true, "bad.org": true, "worse.net": true}},
 	}
 
 	for _, tt := range tests {
