@@ -160,7 +160,7 @@
   <h2>How it works</h2>
   <p>
     Point a hostname at <code>alias.redirect.name</code> (or the IP), then add a TXT record
-    with your redirect rule. That's it. The service reads your DNS and redirects visitors.
+    at <code>_redirect.&lt;hostname&gt;</code> with your redirect rule. That's it. The service reads your DNS and redirects visitors.
   </p>
 
   <hr>
@@ -176,8 +176,12 @@ CNAME  yoursubdomain.example.com  alias.redirect.name
 A      yoursubdomain.example.com  45.55.126.223</code></pre>
     </li>
     <li>
-      Add a TXT record on the same hostname with your redirect rule:
-      <pre><code>TXT  yoursubdomain.example.com  "Redirects to https://example.com/"</code></pre>
+      Add a TXT record with your redirect rule, using the <code>_redirect</code> prefix:
+      <pre><code>TXT  _redirect.yoursubdomain.example.com  "Redirects to https://example.com/"</code></pre>
+      <p style="margin-top: 0.5rem; font-size: 0.9rem; color: #555;">
+        The <code>_redirect</code> prefix is required because a CNAME record prevents other
+        record types (like TXT) from coexisting at the same name.
+      </p>
     </li>
     <li>Wait for DNS to propagate (usually a few minutes), then visit your hostname.</li>
   </ol>
@@ -232,17 +236,17 @@ A      yoursubdomain.example.com  45.55.126.223</code></pre>
   <h2>Examples</h2>
 
   <p><strong>Simple redirect</strong> — send all traffic to a new URL:</p>
-  <pre><code>TXT  go.example.com  "Redirects to https://www.example.com/"</code></pre>
+  <pre><code>TXT  _redirect.go.example.com  "Redirects to https://www.example.com/"</code></pre>
 
   <p><strong>Permanent redirect</strong> — tell browsers and search engines this is final:</p>
-  <pre><code>TXT  old.example.com  "Redirects permanently to https://new.example.com/"</code></pre>
+  <pre><code>TXT  _redirect.old.example.com  "Redirects permanently to https://new.example.com/"</code></pre>
 
   <p><strong>Path-based routing</strong> — redirect a specific path, let others fall through:</p>
-  <pre><code>TXT  docs.example.com  "Redirects from /api to https://api-docs.example.com/"
-TXT  docs.example.com  "Redirects to https://docs.example.com/"</code></pre>
+  <pre><code>TXT  _redirect.docs.example.com  "Redirects from /api to https://api-docs.example.com/"
+TXT  _redirect.docs.example.com  "Redirects to https://docs.example.com/"</code></pre>
 
   <p><strong>Wildcard forwarding</strong> — preserve the path suffix:</p>
-  <pre><code>TXT  links.example.com  "Redirects from /blog/* to https://blog.example.com/posts/*"</code></pre>
+  <pre><code>TXT  _redirect.links.example.com  "Redirects from /blog/* to https://blog.example.com/posts/*"</code></pre>
 
   <hr>
 
