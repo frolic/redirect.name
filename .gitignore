@@ -14,3 +14,7 @@ server
 
 *.env*
 blocklist.txt
+
+# local scratch / Claude state
+.claude/
+tasks/
