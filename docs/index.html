@@ -15,6 +15,7 @@
       --fg: #111111;
       --muted: #555555;
       --soft: #f4f4f7;
+      --inline: rgba(15, 15, 20, 0.06);
       --border: #e5e5ec;
       --alert-bg: #fff1f0;
       --alert-border: #ffa39e;
@@ -28,6 +29,7 @@
         --fg: #ececef;
         --muted: #9a9aa3;
         --soft: #1c1c22;
+        --inline: rgba(255, 255, 255, 0.08);
         --border: #28282f;
         --alert-bg: #2a1418;
         --alert-border: #6b2a31;
@@ -81,7 +83,7 @@
     }
 
     code {
-      background: var(--soft);
+      background: var(--inline);
       border-radius: 4px;
       padding: 0.1em 0.35em;
     }
@@ -130,6 +132,26 @@
 
     tr:last-child td { border-bottom: none; }
 
+    table code {
+      background: none;
+      padding: 0;
+    }
+
+    .dns-record {
+      display: block;
+      overflow-x: auto;
+    }
+
+    .dns-record td,
+    .dns-record th {
+      white-space: nowrap;
+    }
+
+    .dns-record th:first-child,
+    .dns-record td:first-child {
+      width: 4.5rem;
+    }
+
     .tagline {
       color: var(--muted);
       margin: 0 0 2.5rem;
@@ -167,54 +189,74 @@
   <h2>How it works</h2>
   <p>
     Two DNS records describe a redirect: one points your hostname at our server,
-    and a TXT record describes where to send visitors. We read the TXT record at
-    request time and issue the redirect. No accounts, no dashboard — your DNS
-    provider is the source of truth.
+    and a <code>TXT</code> record describes where to send visitors. We read the
+    <code>TXT</code> record at request time and issue the redirect. No accounts,
+    no dashboard — your DNS provider is the source of truth.
   </p>
 
   <h2>Setup</h2>
   <ol>
     <li>
       Point your hostname at <code>alias.redirect.name</code>:
-      <pre><code>CNAME  go.example.com.  alias.redirect.name.</code></pre>
+      <table class="dns-record">
+        <thead><tr><th>Type</th><th>Name</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>CNAME</code></td>
+            <td><code>go.example.com.</code></td>
+            <td><code>alias.redirect.name.</code></td>
+          </tr>
+        </tbody>
+      </table>
       <p class="note">
-        If your DNS provider doesn't allow CNAMEs (often the case at the apex of
-        a domain), use an A record to <code>45.55.126.223</code> instead.
+        If your DNS provider doesn't support <code>CNAME</code> flattening at the
+        apex (sometimes offered as an <code>ALIAS</code> or <code>ANAME</code>
+        record), you can use an <code>A</code> record pointing to
+        <code>45.55.126.223</code> instead.
       </p>
     </li>
     <li>
-      Add a TXT record at <code>_redirect.&lt;your-hostname&gt;</code>:
-      <pre><code>TXT  _redirect.go.example.com.  "Redirects to https://example.com/"</code></pre>
+      Add a <code>TXT</code> record at <code>_redirect.&lt;your-hostname&gt;</code>:
+      <table class="dns-record">
+        <thead><tr><th>Type</th><th>Name</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>TXT</code></td>
+            <td><code>_redirect.go.example.com.</code></td>
+            <td><code>Redirects to https://example.com/</code></td>
+          </tr>
+        </tbody>
+      </table>
       <p class="note">
-        The <code>_redirect.</code> prefix is required because TXT and CNAME
-        records can't coexist at the same name.
+        The <code>_redirect.</code> prefix is required because <code>TXT</code>
+        and <code>CNAME</code> records can't coexist at the same name.
       </p>
     </li>
     <li>Wait for DNS to propagate (usually a minute or two), then visit your hostname.</li>
   </ol>
 
   <h2>Redirect rules</h2>
-  <p>The TXT record value is the rule. The syntax is plain English:</p>
+  <p>The <code>TXT</code> record value is the rule. The syntax is plain English:</p>
 
   <table>
     <thead>
       <tr>
-        <th>TXT record value</th>
+        <th><code>TXT</code> record value</th>
         <th>Behavior</th>
       </tr>
     </thead>
     <tbody>
       <tr>
         <td><code>Redirects to &lt;url&gt;</code></td>
-        <td>302 to <code>&lt;url&gt;</code></td>
+        <td><code>302</code> to <code>&lt;url&gt;</code></td>
       </tr>
       <tr>
         <td><code>Redirects permanently to &lt;url&gt;</code></td>
-        <td>301 to <code>&lt;url&gt;</code></td>
+        <td><code>301</code> to <code>&lt;url&gt;</code></td>
       </tr>
       <tr>
         <td><code>Redirects from &lt;path&gt; to &lt;url&gt;</code></td>
-        <td>302 when the request path matches</td>
+        <td><code>302</code> when the request path matches</td>
       </tr>
       <tr>
         <td><code>Redirects from &lt;path&gt; to &lt;url&gt; with 308</code></td>
@@ -229,12 +271,12 @@
 
   <p>
     Destinations can use <code>http://</code>, <code>https://</code>,
-    <code>ftp://</code>, <code>mailto:</code>, <code>magnet:</code>, or a
-    relative path.
+    <code>ftp://</code>, <code>mailto:</code>, <code>magnet:</code>, or an
+    absolute path.
   </p>
 
   <p>
-    You can add multiple TXT records at the same name. Path-specific rules
+    You can add multiple <code>TXT</code> records at the same name. Path-specific rules
     (<code>Redirects from …</code>) are checked first; catch-all rules
     (<code>Redirects to …</code>) only apply if no path rule matches. DNS
     doesn't guarantee an order between records at the same name, so within
@@ -245,20 +287,69 @@
   <h2>Examples</h2>
 
   <p><strong>Simple redirect</strong> — send all traffic to a single URL:</p>
-  <pre><code>TXT  _redirect.go.example.com.  "Redirects to https://www.example.com/"</code></pre>
+  <table class="dns-record">
+    <thead><tr><th>Type</th><th>Name</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>TXT</code></td>
+        <td><code>_redirect.go.example.com.</code></td>
+        <td><code>Redirects to https://www.example.com/</code></td>
+      </tr>
+    </tbody>
+  </table>
 
   <p><strong>Permanent redirect</strong> — for moves that won't be undone:</p>
-  <pre><code>TXT  _redirect.old.example.com.  "Redirects permanently to https://new.example.com/"</code></pre>
+  <table class="dns-record">
+    <thead><tr><th>Type</th><th>Name</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>TXT</code></td>
+        <td><code>_redirect.old.example.com.</code></td>
+        <td><code>Redirects permanently to https://new.example.com/</code></td>
+      </tr>
+    </tbody>
+  </table>
 
   <p><strong>Path routing</strong> — redirect one path, send the rest somewhere else:</p>
-  <pre><code>TXT  _redirect.docs.example.com.  "Redirects from /api to https://api-docs.example.com/"
-TXT  _redirect.docs.example.com.  "Redirects to https://docs.example.com/"</code></pre>
+  <table class="dns-record">
+    <thead><tr><th>Type</th><th>Name</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>TXT</code></td>
+        <td><code>_redirect.docs.example.com.</code></td>
+        <td><code>Redirects from /api to https://api-docs.example.com/</code></td>
+      </tr>
+      <tr>
+        <td><code>TXT</code></td>
+        <td><code>_redirect.docs.example.com.</code></td>
+        <td><code>Redirects to https://docs.example.com/</code></td>
+      </tr>
+    </tbody>
+  </table>
 
   <p><strong>Wildcard forwarding</strong> — preserve the matched suffix in the destination:</p>
-  <pre><code>TXT  _redirect.links.example.com.  "Redirects from /blog/* to https://blog.example.com/posts/*"</code></pre>
+  <table class="dns-record">
+    <thead><tr><th>Type</th><th>Name</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>TXT</code></td>
+        <td><code>_redirect.links.example.com.</code></td>
+        <td><code>Redirects from /blog/* to https://blog.example.com/posts/*</code></td>
+      </tr>
+    </tbody>
+  </table>
 
   <p><strong>Other schemes</strong> — redirect to mail, magnet links, etc.:</p>
-  <pre><code>TXT  _redirect.hi.example.com.  "Redirects to mailto:hello@example.com"</code></pre>
+  <table class="dns-record">
+    <thead><tr><th>Type</th><th>Name</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>TXT</code></td>
+        <td><code>_redirect.hi.example.com.</code></td>
+        <td><code>Redirects to mailto:hello@example.com</code></td>
+      </tr>
+    </tbody>
+  </table>
 
   <h2>HTTPS</h2>
   <p>
@@ -269,16 +360,19 @@ TXT  _redirect.docs.example.com.  "Redirects to https://docs.example.com/"</code
   </p>
 
   <h2>Verifying your setup</h2>
-  <p>If something isn't working, check what DNS is actually serving:</p>
-  <pre><code># Confirm the CNAME or A record resolves
-$ dig +short go.example.com.
+  <p>If something isn't working, check what DNS is actually serving.</p>
 
-# Confirm the TXT record is reachable and matches what you set
-$ dig +short TXT _redirect.go.example.com.</code></pre>
+  <p>Confirm the <code>CNAME</code> or <code>A</code> record resolves:</p>
+  <pre><code>dig +short go.example.com.</code></pre>
+
+  <p>Confirm the <code>TXT</code> record is reachable and matches what you set:</p>
+  <pre><code>dig +short TXT _redirect.go.example.com.</code></pre>
+
   <p>
     If both look right but the redirect doesn't happen, the rule may not be
     parsing. Make sure the value starts with the word <code>Redirects</code>
-    (capitalised) and that the destination is a fully qualified URL.
+    (capitalised) and that the destination is a fully qualified URL or an
+    absolute path.
   </p>
 
   <h2>Source</h2>
