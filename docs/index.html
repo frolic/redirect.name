@@ -173,6 +173,10 @@
       font-size: 0.875rem;
       color: var(--muted);
     }
+
+    .nb {
+      white-space: nowrap;
+    }
   </style>
 </head>
 <body>
@@ -200,8 +204,8 @@
         <tbody>
           <tr>
             <td><code>CNAME</code></td>
-            <td><code>go.example.com.</code></td>
-            <td><code>alias.redirect.name.</code></td>
+            <td><code><span class="nb">go.example.com.</span></code></td>
+            <td><code><span class="nb">alias.redirect.name.</span></code></td>
           </tr>
         </tbody>
       </table>
@@ -219,8 +223,8 @@
         <tbody>
           <tr>
             <td><code>TXT</code></td>
-            <td><code>_redirect.go.example.com.</code></td>
-            <td><code>Redirects to https://example.com/</code></td>
+            <td><code><span class="nb">_redirect.go.example.com.</span></code></td>
+            <td><code>Redirects to <span class="nb">https://example.com/</span></code></td>
           </tr>
         </tbody>
       </table>
@@ -260,7 +264,7 @@
         <td>Same, with explicit status: <code>301</code>, <code>302</code>, <code>307</code>, or <code>308</code></td>
       </tr>
       <tr>
-        <td><code>Redirects from /path/* to https://example.com/*</code></td>
+        <td><code>Redirects from <span class="nb">/path/*</span> to <span class="nb">https://example.com/*</span></code></td>
         <td>Wildcard: whatever <code>*</code> matches in the path replaces <code>*</code> in the destination</td>
       </tr>
     </tbody>
@@ -287,8 +291,8 @@
     <tbody>
       <tr>
         <td><code>TXT</code></td>
-        <td><code>_redirect.go.example.com.</code></td>
-        <td><code>Redirects to https://www.example.com/</code></td>
+        <td><code><span class="nb">_redirect.go.example.com.</span></code></td>
+        <td><code>Redirects to <span class="nb">https://www.example.com/</span></code></td>
       </tr>
     </tbody>
   </table>
@@ -299,8 +303,8 @@
     <tbody>
       <tr>
         <td><code>TXT</code></td>
-        <td><code>_redirect.old.example.com.</code></td>
-        <td><code>Redirects permanently to https://new.example.com/</code></td>
+        <td><code><span class="nb">_redirect.old.example.com.</span></code></td>
+        <td><code>Redirects permanently to <span class="nb">https://new.example.com/</span></code></td>
       </tr>
     </tbody>
   </table>
@@ -311,13 +315,13 @@
     <tbody>
       <tr>
         <td><code>TXT</code></td>
-        <td><code>_redirect.docs.example.com.</code></td>
-        <td><code>Redirects from /api to https://api-docs.example.com/</code></td>
+        <td><code><span class="nb">_redirect.docs.example.com.</span></code></td>
+        <td><code>Redirects from <span class="nb">/api</span> to <span class="nb">https://api-docs.example.com/</span></code></td>
       </tr>
       <tr>
         <td><code>TXT</code></td>
-        <td><code>_redirect.docs.example.com.</code></td>
-        <td><code>Redirects to https://docs.example.com/</code></td>
+        <td><code><span class="nb">_redirect.docs.example.com.</span></code></td>
+        <td><code>Redirects to <span class="nb">https://docs.example.com/</span></code></td>
       </tr>
     </tbody>
   </table>
@@ -328,8 +332,8 @@
     <tbody>
       <tr>
         <td><code>TXT</code></td>
-        <td><code>_redirect.links.example.com.</code></td>
-        <td><code>Redirects from /blog/* to https://blog.example.com/posts/*</code></td>
+        <td><code><span class="nb">_redirect.links.example.com.</span></code></td>
+        <td><code>Redirects from <span class="nb">/blog/*</span> to <span class="nb">https://blog.example.com/posts/*</span></code></td>
       </tr>
     </tbody>
   </table>
@@ -340,8 +344,8 @@
     <tbody>
       <tr>
         <td><code>TXT</code></td>
-        <td><code>_redirect.hi.example.com.</code></td>
-        <td><code>Redirects to mailto:hello@example.com</code></td>
+        <td><code><span class="nb">_redirect.hi.example.com.</span></code></td>
+        <td><code>Redirects to <span class="nb">mailto:hello@example.com</span></code></td>
       </tr>
     </tbody>
   </table>
