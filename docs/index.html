@@ -4,24 +4,48 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>redirect.name — DNS-based redirects</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%86%97%3C/text%3E%3C/svg%3E">
   <style>
     :root {
       --font: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
       --mono: ui-monospace, "Cascadia Code", Menlo, monospace;
       --max-width: 680px;
-      --accent: #2563eb;
+      --accent: #4338ca;
+      --bg: #ffffff;
+      --fg: #111111;
+      --muted: #555555;
+      --soft: #f4f4f7;
+      --border: #e5e5ec;
+      --alert-bg: #fff1f0;
+      --alert-border: #ffa39e;
+      --alert-fg: #5a1a1a;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --accent: #818cf8;
+        --bg: #0f0f14;
+        --fg: #ececef;
+        --muted: #9a9aa3;
+        --soft: #1c1c22;
+        --border: #28282f;
+        --alert-bg: #2a1418;
+        --alert-border: #6b2a31;
+        --alert-fg: #f8d7da;
+      }
     }
 
     *, *::before, *::after { box-sizing: border-box; }
 
     body {
       font-family: var(--font);
-      background: #fff;
-      color: #111;
+      background: var(--bg);
+      color: var(--fg);
       margin: 0;
-      padding: 2rem 1rem 4rem;
+      padding: 3rem 1.25rem 5rem;
       line-height: 1.6;
       font-size: 1rem;
+      -webkit-font-smoothing: antialiased;
     }
 
     .container {
@@ -30,17 +54,17 @@
     }
 
     h1 {
-      font-size: 1.75rem;
+      font-size: 2.25rem;
       font-weight: 700;
-      margin: 0 0 0.25rem;
-      letter-spacing: -0.02em;
+      margin: 0 0 0.5rem;
+      letter-spacing: -0.03em;
     }
 
     h2 {
-      font-size: 1.15rem;
+      font-size: 1.25rem;
       font-weight: 600;
-      margin: 2.5rem 0 0.75rem;
-      letter-spacing: -0.01em;
+      margin: 3rem 0 0.75rem;
+      letter-spacing: -0.015em;
     }
 
     p { margin: 0 0 1rem; }
@@ -57,25 +81,22 @@
     }
 
     code {
-      background: #f6f8fa;
-      border: 1px solid #e1e4e8;
+      background: var(--soft);
       border-radius: 4px;
       padding: 0.1em 0.35em;
     }
 
     pre {
-      background: #f6f8fa;
-      border: 1px solid #e1e4e8;
-      border-radius: 6px;
+      background: var(--soft);
+      border-radius: 8px;
       padding: 1rem 1.25rem;
       overflow-x: auto;
       margin: 0 0 1rem;
-      line-height: 1.5;
+      line-height: 1.55;
     }
 
     pre code {
       background: none;
-      border: none;
       padding: 0;
       font-size: 0.875rem;
     }
@@ -97,27 +118,28 @@
     th {
       text-align: left;
       font-weight: 600;
-      border-bottom: 2px solid #e1e4e8;
+      border-bottom: 1px solid var(--border);
       padding: 0.5rem 0.75rem;
     }
 
     td {
       padding: 0.5rem 0.75rem;
-      border-bottom: 1px solid #f0f0f0;
+      border-bottom: 1px solid var(--border);
       vertical-align: top;
     }
 
     tr:last-child td { border-bottom: none; }
 
     .tagline {
-      color: #555;
-      margin: 0 0 2rem;
-      font-size: 1.05rem;
+      color: var(--muted);
+      margin: 0 0 2.5rem;
+      font-size: 1.125rem;
     }
 
     .alert {
-      background: #fff1f0;
-      border: 1px solid #ffa39e;
+      background: var(--alert-bg);
+      border: 1px solid var(--alert-border);
+      color: var(--alert-fg);
       border-radius: 6px;
       padding: 0.75rem 1rem;
       margin: 0 0 1.5rem;
@@ -127,31 +149,10 @@
 
     .alert.visible { display: block; }
 
-    hr {
-      border: none;
-      border-top: 1px solid #e1e4e8;
-      margin: 2.5rem 0;
-    }
-
     .note {
       margin-top: 0.5rem;
       font-size: 0.9rem;
-      color: #555;
-    }
-
-    .step-num {
-      display: inline-block;
-      background: var(--accent);
-      color: #fff;
-      width: 1.5rem;
-      height: 1.5rem;
-      border-radius: 50%;
-      text-align: center;
-      line-height: 1.5rem;
-      font-size: 0.8rem;
-      font-weight: 700;
-      margin-right: 0.5rem;
-      vertical-align: middle;
+      color: var(--muted);
     }
   </style>
 </head>
@@ -170,8 +171,6 @@
     request time and issue the redirect. No accounts, no dashboard — your DNS
     provider is the source of truth.
   </p>
-
-  <hr>
 
   <h2>Setup</h2>
   <ol>
@@ -193,8 +192,6 @@
     </li>
     <li>Wait for DNS to propagate (usually a minute or two), then visit your hostname.</li>
   </ol>
-
-  <hr>
 
   <h2>Redirect rules</h2>
   <p>The TXT record value is the rule. The syntax is plain English:</p>
@@ -245,8 +242,6 @@
     match the same request, which wins is unspecified.
   </p>
 
-  <hr>
-
   <h2>Examples</h2>
 
   <p><strong>Simple redirect</strong> — send all traffic to a single URL:</p>
@@ -265,8 +260,6 @@ TXT  _redirect.docs.example.com.  "Redirects to https://docs.example.com/"</code
   <p><strong>Other schemes</strong> — redirect to mail, magnet links, etc.:</p>
   <pre><code>TXT  _redirect.hi.example.com.  "Redirects to mailto:hello@example.com"</code></pre>
 
-  <hr>
-
   <h2>HTTPS</h2>
   <p>
     HTTPS works out of the box. Certificates are issued automatically by
@@ -274,8 +267,6 @@ TXT  _redirect.docs.example.com.  "Redirects to https://docs.example.com/"</code
     take a couple of seconds while the cert is provisioned; everything after
     is immediate.
   </p>
-
-  <hr>
 
   <h2>Verifying your setup</h2>
   <p>If something isn't working, check what DNS is actually serving:</p>
@@ -289,8 +280,6 @@ $ dig +short TXT _redirect.go.example.com.</code></pre>
     parsing. Make sure the value starts with the word <code>Redirects</code>
     (capitalised) and that the destination is a fully qualified URL.
   </p>
-
-  <hr>
 
   <h2>Source</h2>
   <p>
