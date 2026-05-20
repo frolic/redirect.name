@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>redirect.name: DNS-based redirects</title>
-  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%86%97%3C/text%3E%3C/svg%3E">
   <style>
     :root {
       --font: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
@@ -168,6 +167,12 @@
       font-size: 0.9rem;
       color: var(--muted);
     }
+
+    .footer {
+      margin-top: 4rem;
+      font-size: 0.875rem;
+      color: var(--muted);
+    }
   </style>
 </head>
 <body>
@@ -268,12 +273,10 @@
   </p>
 
   <p>
-    You can add multiple <code>TXT</code> records at the same name. Path-specific rules
-    (<code>Redirects from …</code>) are checked first; catch-all rules
-    (<code>Redirects to …</code>) only apply if no path rule matches. DNS
-    doesn't guarantee an order between records at the same name, so within
-    each group the rules should be non-overlapping; if more than one could
-    match the same request, which wins is unspecified.
+    You can add multiple <code>TXT</code> records at the same name.
+    Path-specific rules (<code>Redirects from …</code>) are tried first;
+    catch-all rules (<code>Redirects to …</code>) only apply if no path rule
+    matches.
   </p>
 
   <h2>Examples</h2>
@@ -361,16 +364,14 @@
   <pre><code>dig +short TXT _redirect.go.example.com.</code></pre>
 
   <p>
-    If both look right but the redirect doesn't happen, the rule may not be
-    parsing. Make sure the value starts with the word <code>Redirects</code>
-    (capitalised) and that the destination is a fully qualified URL or an
+    If both look right but the redirect doesn't happen, the rule may not
+    parse. Make sure the value starts with the word <code>Redirects</code>
+    (capitalized) and that the destination is a fully qualified URL or an
     absolute path.
   </p>
 
-  <h2>Source</h2>
-  <p>
-    The server is open source:
-    <a href="https://github.com/frolic/redirect.name">github.com/frolic/redirect.name</a>
+  <p class="footer">
+    <a href="https://github.com/frolic/redirect.name">View source</a>
   </p>
 
 </div>
