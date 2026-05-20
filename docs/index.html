@@ -3,25 +3,50 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>redirect.name — DNS-based redirects</title>
+  <title>redirect.name: DNS-based redirects</title>
   <style>
     :root {
       --font: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif;
       --mono: ui-monospace, "Cascadia Code", Menlo, monospace;
       --max-width: 680px;
-      --accent: #2563eb;
+      --accent: #4338ca;
+      --bg: #ffffff;
+      --fg: #111111;
+      --muted: #555555;
+      --soft: #f4f4f7;
+      --inline: rgba(15, 15, 20, 0.06);
+      --border: #e5e5ec;
+      --alert-bg: #fff1f0;
+      --alert-border: #ffa39e;
+      --alert-fg: #5a1a1a;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --accent: #818cf8;
+        --bg: #0f0f14;
+        --fg: #ececef;
+        --muted: #9a9aa3;
+        --soft: #1c1c22;
+        --inline: rgba(255, 255, 255, 0.08);
+        --border: #28282f;
+        --alert-bg: #2a1418;
+        --alert-border: #6b2a31;
+        --alert-fg: #f8d7da;
+      }
     }
 
     *, *::before, *::after { box-sizing: border-box; }
 
     body {
       font-family: var(--font);
-      background: #fff;
-      color: #111;
+      background: var(--bg);
+      color: var(--fg);
       margin: 0;
-      padding: 2rem 1rem 4rem;
+      padding: 3rem 1.25rem 5rem;
       line-height: 1.6;
       font-size: 1rem;
+      -webkit-font-smoothing: antialiased;
     }
 
     .container {
@@ -30,17 +55,17 @@
     }
 
     h1 {
-      font-size: 1.75rem;
+      font-size: 2.25rem;
       font-weight: 700;
-      margin: 0 0 0.25rem;
-      letter-spacing: -0.02em;
+      margin: 0 0 0.5rem;
+      letter-spacing: -0.03em;
     }
 
     h2 {
-      font-size: 1.15rem;
+      font-size: 1.25rem;
       font-weight: 600;
-      margin: 2.5rem 0 0.75rem;
-      letter-spacing: -0.01em;
+      margin: 3rem 0 0.75rem;
+      letter-spacing: -0.015em;
     }
 
     p { margin: 0 0 1rem; }
@@ -57,25 +82,22 @@
     }
 
     code {
-      background: #f6f8fa;
-      border: 1px solid #e1e4e8;
+      background: var(--inline);
       border-radius: 4px;
       padding: 0.1em 0.35em;
     }
 
     pre {
-      background: #f6f8fa;
-      border: 1px solid #e1e4e8;
-      border-radius: 6px;
+      background: var(--soft);
+      border-radius: 8px;
       padding: 1rem 1.25rem;
       overflow-x: auto;
       margin: 0 0 1rem;
-      line-height: 1.5;
+      line-height: 1.55;
     }
 
     pre code {
       background: none;
-      border: none;
       padding: 0;
       font-size: 0.875rem;
     }
@@ -88,36 +110,49 @@
     li { margin-bottom: 0.4rem; }
 
     table {
+      display: block;
       width: 100%;
       border-collapse: collapse;
       font-size: 0.9rem;
       margin: 0 0 1rem;
+      overflow-x: auto;
     }
 
     th {
       text-align: left;
       font-weight: 600;
-      border-bottom: 2px solid #e1e4e8;
+      border-bottom: 1px solid var(--border);
       padding: 0.5rem 0.75rem;
     }
 
     td {
       padding: 0.5rem 0.75rem;
-      border-bottom: 1px solid #f0f0f0;
+      border-bottom: 1px solid var(--border);
       vertical-align: top;
     }
 
     tr:last-child td { border-bottom: none; }
 
+    table code {
+      background: none;
+      padding: 0;
+    }
+
+    .dns-record th:first-child,
+    .dns-record td:first-child {
+      width: 4.5rem;
+    }
+
     .tagline {
-      color: #555;
-      margin: 0 0 2rem;
-      font-size: 1.05rem;
+      color: var(--muted);
+      margin: 0 0 2.5rem;
+      font-size: 1.125rem;
     }
 
     .alert {
-      background: #fff1f0;
-      border: 1px solid #ffa39e;
+      background: var(--alert-bg);
+      border: 1px solid var(--alert-border);
+      color: var(--alert-fg);
       border-radius: 6px;
       padding: 0.75rem 1rem;
       margin: 0 0 1.5rem;
@@ -127,31 +162,16 @@
 
     .alert.visible { display: block; }
 
-    hr {
-      border: none;
-      border-top: 1px solid #e1e4e8;
-      margin: 2.5rem 0;
-    }
-
     .note {
       margin-top: 0.5rem;
       font-size: 0.9rem;
-      color: #555;
+      color: var(--muted);
     }
 
-    .step-num {
-      display: inline-block;
-      background: var(--accent);
-      color: #fff;
-      width: 1.5rem;
-      height: 1.5rem;
-      border-radius: 50%;
-      text-align: center;
-      line-height: 1.5rem;
-      font-size: 0.8rem;
-      font-weight: 700;
-      margin-right: 0.5rem;
-      vertical-align: middle;
+    .footer {
+      margin-top: 4rem;
+      font-size: 0.875rem;
+      color: var(--muted);
     }
   </style>
 </head>
@@ -161,141 +181,197 @@
   <div id="error-alert" class="alert"></div>
 
   <h1>redirect.name</h1>
-  <p class="tagline">DNS-based URL redirects — no server, no signup, no dashboard.</p>
+  <p class="tagline">DNS-based URL redirects. No server, no signup, no dashboard.</p>
 
   <h2>How it works</h2>
   <p>
     Two DNS records describe a redirect: one points your hostname at our server,
-    and a TXT record describes where to send visitors. We read the TXT record at
-    request time and issue the redirect. No accounts, no dashboard — your DNS
-    provider is the source of truth.
+    and a <code>TXT</code> record describes where to send visitors. We read the
+    <code>TXT</code> record at request time and issue the redirect. No accounts,
+    no dashboard. Your DNS provider is the source of truth.
   </p>
-
-  <hr>
 
   <h2>Setup</h2>
   <ol>
     <li>
       Point your hostname at <code>alias.redirect.name</code>:
-      <pre><code>CNAME  go.example.com.  alias.redirect.name.</code></pre>
+      <table class="dns-record">
+        <thead><tr><th>Type</th><th>Name</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>CNAME</code></td>
+            <td><code>go.example.com.</code></td>
+            <td><code>alias.redirect.name.</code></td>
+          </tr>
+        </tbody>
+      </table>
       <p class="note">
-        If your DNS provider doesn't allow CNAMEs (often the case at the apex of
-        a domain), use an A record to <code>45.55.126.223</code> instead.
+        If your DNS provider doesn't support <code>CNAME</code> flattening at the
+        apex (sometimes offered as an <code>ALIAS</code> or <code>ANAME</code>
+        record), you can use an <code>A</code> record pointing to
+        <code>45.55.126.223</code> instead.
       </p>
     </li>
     <li>
-      Add a TXT record at <code>_redirect.&lt;your-hostname&gt;</code>:
-      <pre><code>TXT  _redirect.go.example.com.  "Redirects to https://example.com/"</code></pre>
+      Add a <code>TXT</code> record at <code>_redirect.&lt;your-hostname&gt;</code>:
+      <table class="dns-record">
+        <thead><tr><th>Type</th><th>Name</th><th>Value</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><code>TXT</code></td>
+            <td><code>_redirect.go.example.com.</code></td>
+            <td><code>Redirects to https://example.com/</code></td>
+          </tr>
+        </tbody>
+      </table>
       <p class="note">
-        The <code>_redirect.</code> prefix is required because TXT and CNAME
-        records can't coexist at the same name.
+        The <code>_redirect.</code> prefix is required because <code>TXT</code>
+        and <code>CNAME</code> records can't coexist at the same name.
       </p>
     </li>
     <li>Wait for DNS to propagate (usually a minute or two), then visit your hostname.</li>
   </ol>
 
-  <hr>
-
   <h2>Redirect rules</h2>
-  <p>The TXT record value is the rule. The syntax is plain English:</p>
+  <p>The <code>TXT</code> record value is the rule. The syntax is plain English:</p>
 
   <table>
     <thead>
       <tr>
-        <th>TXT record value</th>
+        <th><code>TXT</code> record value</th>
         <th>Behavior</th>
       </tr>
     </thead>
     <tbody>
       <tr>
         <td><code>Redirects to &lt;url&gt;</code></td>
-        <td>302 to <code>&lt;url&gt;</code></td>
+        <td><code>302</code> to <code>&lt;url&gt;</code></td>
       </tr>
       <tr>
         <td><code>Redirects permanently to &lt;url&gt;</code></td>
-        <td>301 to <code>&lt;url&gt;</code></td>
+        <td><code>301</code> to <code>&lt;url&gt;</code></td>
       </tr>
       <tr>
         <td><code>Redirects from &lt;path&gt; to &lt;url&gt;</code></td>
-        <td>302 when the request path matches</td>
+        <td><code>302</code> when the request path matches</td>
       </tr>
       <tr>
         <td><code>Redirects from &lt;path&gt; to &lt;url&gt; with 308</code></td>
-        <td>Same, with explicit status — <code>301</code>, <code>302</code>, <code>307</code>, or <code>308</code></td>
+        <td>Same, with explicit status: <code>301</code>, <code>302</code>, <code>307</code>, or <code>308</code></td>
       </tr>
       <tr>
         <td><code>Redirects from /path/* to https://example.com/*</code></td>
-        <td>Wildcard — <code>*</code> in the destination receives the matched suffix</td>
+        <td>Wildcard: whatever <code>*</code> matches in the path replaces <code>*</code> in the destination</td>
       </tr>
     </tbody>
   </table>
 
   <p>
     Destinations can use <code>http://</code>, <code>https://</code>,
-    <code>ftp://</code>, <code>mailto:</code>, <code>magnet:</code>, or a
-    relative path.
+    <code>ftp://</code>, <code>mailto:</code>, <code>magnet:</code>, or an
+    absolute path.
   </p>
 
   <p>
-    You can add multiple TXT records at the same name. Path-specific rules
-    (<code>Redirects from …</code>) are checked first; catch-all rules
-    (<code>Redirects to …</code>) only apply if no path rule matches. DNS
-    doesn't guarantee an order between records at the same name, so within
-    each group the rules should be non-overlapping — if more than one could
-    match the same request, which wins is unspecified.
+    You can add multiple <code>TXT</code> records at the same name.
+    Path-specific rules (<code>Redirects from …</code>) are tried first;
+    catch-all rules (<code>Redirects to …</code>) only apply if no path rule
+    matches.
   </p>
-
-  <hr>
 
   <h2>Examples</h2>
 
-  <p><strong>Simple redirect</strong> — send all traffic to a single URL:</p>
-  <pre><code>TXT  _redirect.go.example.com.  "Redirects to https://www.example.com/"</code></pre>
+  <p><strong>Simple redirect.</strong> Send all traffic to a single URL:</p>
+  <table class="dns-record">
+    <thead><tr><th>Type</th><th>Name</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>TXT</code></td>
+        <td><code>_redirect.go.example.com.</code></td>
+        <td><code>Redirects to https://www.example.com/</code></td>
+      </tr>
+    </tbody>
+  </table>
 
-  <p><strong>Permanent redirect</strong> — for moves that won't be undone:</p>
-  <pre><code>TXT  _redirect.old.example.com.  "Redirects permanently to https://new.example.com/"</code></pre>
+  <p><strong>Permanent redirect.</strong> For moves that won't be undone:</p>
+  <table class="dns-record">
+    <thead><tr><th>Type</th><th>Name</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>TXT</code></td>
+        <td><code>_redirect.old.example.com.</code></td>
+        <td><code>Redirects permanently to https://new.example.com/</code></td>
+      </tr>
+    </tbody>
+  </table>
 
-  <p><strong>Path routing</strong> — redirect one path, send the rest somewhere else:</p>
-  <pre><code>TXT  _redirect.docs.example.com.  "Redirects from /api to https://api-docs.example.com/"
-TXT  _redirect.docs.example.com.  "Redirects to https://docs.example.com/"</code></pre>
+  <p><strong>Path routing.</strong> Redirect one path, send the rest somewhere else:</p>
+  <table class="dns-record">
+    <thead><tr><th>Type</th><th>Name</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>TXT</code></td>
+        <td><code>_redirect.docs.example.com.</code></td>
+        <td><code>Redirects from /api to https://api-docs.example.com/</code></td>
+      </tr>
+      <tr>
+        <td><code>TXT</code></td>
+        <td><code>_redirect.docs.example.com.</code></td>
+        <td><code>Redirects to https://docs.example.com/</code></td>
+      </tr>
+    </tbody>
+  </table>
 
-  <p><strong>Wildcard forwarding</strong> — preserve the matched suffix in the destination:</p>
-  <pre><code>TXT  _redirect.links.example.com.  "Redirects from /blog/* to https://blog.example.com/posts/*"</code></pre>
+  <p><strong>Wildcard forwarding.</strong> Whatever <code>*</code> matches in the path replaces <code>*</code> in the destination:</p>
+  <table class="dns-record">
+    <thead><tr><th>Type</th><th>Name</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>TXT</code></td>
+        <td><code>_redirect.links.example.com.</code></td>
+        <td><code>Redirects from /blog/* to https://blog.example.com/posts/*</code></td>
+      </tr>
+    </tbody>
+  </table>
 
-  <p><strong>Other schemes</strong> — redirect to mail, magnet links, etc.:</p>
-  <pre><code>TXT  _redirect.hi.example.com.  "Redirects to mailto:hello@example.com"</code></pre>
-
-  <hr>
+  <p><strong>Other schemes.</strong> Redirect to mail, magnet links, etc.:</p>
+  <table class="dns-record">
+    <thead><tr><th>Type</th><th>Name</th><th>Value</th></tr></thead>
+    <tbody>
+      <tr>
+        <td><code>TXT</code></td>
+        <td><code>_redirect.hi.example.com.</code></td>
+        <td><code>Redirects to mailto:hello@example.com</code></td>
+      </tr>
+    </tbody>
+  </table>
 
   <h2>HTTPS</h2>
   <p>
     HTTPS works out of the box. Certificates are issued automatically by
-    Let's Encrypt on the first request to a new hostname — that request may
+    Let's Encrypt on the first request to a new hostname. That request may
     take a couple of seconds while the cert is provisioned; everything after
     is immediate.
   </p>
 
-  <hr>
-
   <h2>Verifying your setup</h2>
-  <p>If something isn't working, check what DNS is actually serving:</p>
-  <pre><code># Confirm the CNAME or A record resolves
-$ dig +short go.example.com.
+  <p>If something isn't working, check what DNS is actually serving.</p>
 
-# Confirm the TXT record is reachable and matches what you set
-$ dig +short TXT _redirect.go.example.com.</code></pre>
+  <p>Confirm the <code>CNAME</code> or <code>A</code> record resolves:</p>
+  <pre><code>dig +short go.example.com.</code></pre>
+
+  <p>Confirm the <code>TXT</code> record is reachable and matches what you set:</p>
+  <pre><code>dig +short TXT _redirect.go.example.com.</code></pre>
+
   <p>
-    If both look right but the redirect doesn't happen, the rule may not be
-    parsing. Make sure the value starts with the word <code>Redirects</code>
-    (capitalised) and that the destination is a fully qualified URL.
+    If both look right but the redirect doesn't happen, the rule may not
+    parse. Make sure the value starts with the word <code>Redirects</code>
+    (capitalized) and that the destination is a fully qualified URL or an
+    absolute path.
   </p>
 
-  <hr>
-
-  <h2>Source</h2>
-  <p>
-    The server is open source:
-    <a href="https://github.com/frolic/redirect.name">github.com/frolic/redirect.name</a>
+  <p class="footer">
+    <a href="https://github.com/frolic/redirect.name">View source</a>
   </p>
 
 </div>
