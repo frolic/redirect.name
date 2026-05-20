@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>redirect.name — DNS-based redirects</title>
+  <title>redirect.name: DNS-based redirects</title>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%E2%86%97%3C/text%3E%3C/svg%3E">
   <style>
     :root {
@@ -111,10 +111,12 @@
     li { margin-bottom: 0.4rem; }
 
     table {
+      display: block;
       width: 100%;
       border-collapse: collapse;
       font-size: 0.9rem;
       margin: 0 0 1rem;
+      overflow-x: auto;
     }
 
     th {
@@ -135,16 +137,6 @@
     table code {
       background: none;
       padding: 0;
-    }
-
-    .dns-record {
-      display: block;
-      overflow-x: auto;
-    }
-
-    .dns-record td,
-    .dns-record th {
-      white-space: nowrap;
     }
 
     .dns-record th:first-child,
@@ -184,14 +176,14 @@
   <div id="error-alert" class="alert"></div>
 
   <h1>redirect.name</h1>
-  <p class="tagline">DNS-based URL redirects — no server, no signup, no dashboard.</p>
+  <p class="tagline">DNS-based URL redirects. No server, no signup, no dashboard.</p>
 
   <h2>How it works</h2>
   <p>
     Two DNS records describe a redirect: one points your hostname at our server,
     and a <code>TXT</code> record describes where to send visitors. We read the
     <code>TXT</code> record at request time and issue the redirect. No accounts,
-    no dashboard — your DNS provider is the source of truth.
+    no dashboard. Your DNS provider is the source of truth.
   </p>
 
   <h2>Setup</h2>
@@ -260,11 +252,11 @@
       </tr>
       <tr>
         <td><code>Redirects from &lt;path&gt; to &lt;url&gt; with 308</code></td>
-        <td>Same, with explicit status — <code>301</code>, <code>302</code>, <code>307</code>, or <code>308</code></td>
+        <td>Same, with explicit status: <code>301</code>, <code>302</code>, <code>307</code>, or <code>308</code></td>
       </tr>
       <tr>
         <td><code>Redirects from /path/* to https://example.com/*</code></td>
-        <td>Wildcard — <code>*</code> in the destination receives the matched suffix</td>
+        <td>Wildcard: whatever <code>*</code> matches in the path replaces <code>*</code> in the destination</td>
       </tr>
     </tbody>
   </table>
@@ -280,13 +272,13 @@
     (<code>Redirects from …</code>) are checked first; catch-all rules
     (<code>Redirects to …</code>) only apply if no path rule matches. DNS
     doesn't guarantee an order between records at the same name, so within
-    each group the rules should be non-overlapping — if more than one could
+    each group the rules should be non-overlapping; if more than one could
     match the same request, which wins is unspecified.
   </p>
 
   <h2>Examples</h2>
 
-  <p><strong>Simple redirect</strong> — send all traffic to a single URL:</p>
+  <p><strong>Simple redirect.</strong> Send all traffic to a single URL:</p>
   <table class="dns-record">
     <thead><tr><th>Type</th><th>Name</th><th>Value</th></tr></thead>
     <tbody>
@@ -298,7 +290,7 @@
     </tbody>
   </table>
 
-  <p><strong>Permanent redirect</strong> — for moves that won't be undone:</p>
+  <p><strong>Permanent redirect.</strong> For moves that won't be undone:</p>
   <table class="dns-record">
     <thead><tr><th>Type</th><th>Name</th><th>Value</th></tr></thead>
     <tbody>
@@ -310,7 +302,7 @@
     </tbody>
   </table>
 
-  <p><strong>Path routing</strong> — redirect one path, send the rest somewhere else:</p>
+  <p><strong>Path routing.</strong> Redirect one path, send the rest somewhere else:</p>
   <table class="dns-record">
     <thead><tr><th>Type</th><th>Name</th><th>Value</th></tr></thead>
     <tbody>
@@ -327,7 +319,7 @@
     </tbody>
   </table>
 
-  <p><strong>Wildcard forwarding</strong> — preserve the matched suffix in the destination:</p>
+  <p><strong>Wildcard forwarding.</strong> Whatever <code>*</code> matches in the path replaces <code>*</code> in the destination:</p>
   <table class="dns-record">
     <thead><tr><th>Type</th><th>Name</th><th>Value</th></tr></thead>
     <tbody>
@@ -339,7 +331,7 @@
     </tbody>
   </table>
 
-  <p><strong>Other schemes</strong> — redirect to mail, magnet links, etc.:</p>
+  <p><strong>Other schemes.</strong> Redirect to mail, magnet links, etc.:</p>
   <table class="dns-record">
     <thead><tr><th>Type</th><th>Name</th><th>Value</th></tr></thead>
     <tbody>
@@ -354,7 +346,7 @@
   <h2>HTTPS</h2>
   <p>
     HTTPS works out of the box. Certificates are issued automatically by
-    Let's Encrypt on the first request to a new hostname — that request may
+    Let's Encrypt on the first request to a new hostname. That request may
     take a couple of seconds while the cert is provisioned; everything after
     is immediate.
   </p>
